@@ -4,6 +4,12 @@ import Model.modelUtils as M_Util
 from Model.Model import Model,KS_Model
 import numpy as np
 from random import sample
+from Image.imageutils import getImageList, process_Image
+from math import sqrt,ceil
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+from PIL import Image
+
 _myData = None 
 _myModel = None
 def main():
@@ -83,11 +89,42 @@ def LoadModel():
 		else :
 			return Model(model,name=name)
 	else:
-		print("invalid input select between 1 -",len(modelList))
+		print("Invalid input select between 1 -",len(modelList))
 		input("Press Enter to continue...")
 		LoadModel()
 
 def Predict():
+	global _myData
+	global _myModel
+	message = "Predict from \n 1. Test Set \n 2. Image file \n"
+	userInput = int(input(message+">"))
+	if userInput == 1:
+		Predict_from_testSet()
+	elif userInput == 2:
+		Predict_from_imageFile()
+
+def Predict_from_imageFile():
+	imageList = getImageList()
+	message = "Chose a Image \n"
+	i = 1
+	for image in imageList:
+		message = message + str(i) +". "+ image +"\n"
+		i += 1
+	userInput = int(input(message+">"))
+	if userInput <= len(imageList):
+		image = imageList[userInput-1]
+		charList = process_Image(image)
+		reslist = []
+		for char in charList:
+			res = _myModel._Predict(char)
+			reslist.append(res)
+		drawImages(charList,reslist)
+		print ("Predicted output is ",reslist)
+	else :
+		print(image," : Image not found")
+	
+
+def Predict_from_testSet():
 	global _myData
 	global _myModel
 	message = "Choose a Data Point Between 0-"+str(_myData.test_x.shape[0])+" from the Test set \n"
@@ -169,6 +206,20 @@ def Test():
 	userInput = input(message+">")
 	res = _myModel.find_Indexes_Matching_Output(_myData.test_x,userInput)
 	print(res)
+    
+def drawImages(charList,predOut):
+	for i in range(len(charList)):
+		n = ceil(sqrt(len(charList)))
+		plt.subplot(n,n,i+1)
+		img = charList[i]
+		if i < len(predOut): 
+			title_obj  = plt.title("Out:"+str(predOut[i]))
+		plt.imshow(img.reshape([28, 28]), cmap = mpl.cm.binary)
+		plt.axis('off')
+	plt.subplots_adjust(hspace=0.6)
+	plt.savefig('Data/img.png')
+	image = Image.open('Data/img.png')
+	image.show()
 
 if __name__ == '__main__':
 	main()

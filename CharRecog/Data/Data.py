@@ -70,12 +70,15 @@ class Data:
         plt.figure()
         if type(index) == int:
             img = self.test_x[index]
-            if res != None: 
-                plt.title("Predicted Out : "+str(res)+"\nLabel : "+str(lbl))
-            plt.imshow(img.reshape([28, 28]), cmap = mpl.cm.binary)
-            plt.savefig('Data/img.png')
-            image = Image.open('Data/img.png')
-            image.show()
+        else:
+            img = index
+        if res != None: 
+            plt.title("Predicted Out : "+str(res)+"\nLabel : "+str(lbl))
+        plt.imshow(img.reshape([28, 28]), cmap = mpl.cm.binary)
+        plt.savefig('Data/img.png')
+        image = Image.open('Data/img.png')
+        image.show()
+        
     
     def drawImages(self,indexList,predOut,expectedOut=[]):
         for i in range(len(indexList)):
