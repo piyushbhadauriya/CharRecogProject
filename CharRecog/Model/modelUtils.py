@@ -9,6 +9,7 @@ Model_PATH = path.join('Model')
 Model_Accuracy_jsonfile = "modelAcc.json"    
 
 def getModelList():
+    global Model_PATH
     ModelFilesList = []
     Allfiles = listdir(Model_PATH)
     for afile in Allfiles:
