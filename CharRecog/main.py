@@ -30,10 +30,10 @@ def main():
 			_myModel = LoadModel()
 			continue
 		elif fun == "Predict" or fun == "3":
-			if (_myData != None and _myModel != None):
+			if (_myModel != None):
 				Predict()
 			else:
-				print("please Load DataSet and Model first")
+				print("please Load Model first")
 				input("Press Enter to continue...")
 			continue
 		elif fun == "Evaluate" or fun == "4":
@@ -44,7 +44,11 @@ def main():
 				input("Press Enter to continue...")
 			continue
 		elif fun == "Train Model" or fun == "5":
-			print("Not Implemented Yet")
+			if (_myData != None):
+				Train()
+			else:
+				print("please Load DataSet and Model first")
+				input("Press Enter to continue...")
 			continue
 		elif fun == "Test" or fun == "test":
 			Test()
@@ -54,14 +58,14 @@ def main():
 def LoadDataSet():
 	global _myModel
 	global _myData
-	message = "\nChose a Dataset \n 1. BY_MERGE \n 2. BY_CLASS \n 3. BALANCED \n 4. DIGITS \n 5. LETTERS \n 6. MNIST \n>"
+	message = "\nChoose a Dataset \n 1. BY_MERGE \n 2. BY_CLASS \n 3. BALANCED \n 4. DIGITS \n 5. LETTERS \n 6. MNIST \n>"
 	userInput = input(message)
 	if hasattr(_myModel,"Acc"):
 		_myModel.resetCurrentAcc()
 	if userInput == "1" or userInput == "BY_MERGE":
-		return Data(DatSet.BY_MERGE)
+		return Data(DatSet.BYMERGE)
 	elif userInput == "2" or userInput == "BY_CLASS":
-		return Data(DatSet.BY_CLASS)
+		return Data(DatSet.BYCLASS)
 	elif userInput == "3" or userInput == "BALANCED":
 		return Data(DatSet.BALANCED)
 	elif userInput == "4" or userInput == "DIGITS":
@@ -75,7 +79,7 @@ def LoadModel():
 	global _myData
 	global _myModel
 	modelList = getModelList()
-	message = "Chose a Model \n"
+	message = "Choose a Model \n"
 	i = 1
 	for model in modelList:
 		message = message + str(i) +". "+ model +"\n"
@@ -84,8 +88,19 @@ def LoadModel():
 	if userInput <= len(modelList):
 		name = modelList[userInput-1]
 		model = getModel(name)
-		if "keras.engine.sequential" in str(type(model)):
+		if "bymerg" in name.lower():
 			return KS_Model(model,name=name,mapping="emnist-bymerge-mapping.txt")
+		elif "byclass" in name.lower():
+			return KS_Model(model,name=name,mapping="emnist-byclass-mapping.txt")
+		elif "balanced" in name.lower():
+			return KS_Model(model,name=name,mapping="emnist-balanced-mapping.txt")
+		elif "digits" in name.lower():
+			return KS_Model(model,name=name,mapping="emnist-digits-mapping.txt")
+		elif "letters" in name.lower():
+			return KS_Model(model,name=name,mapping="emnist-letters-mapping.txt")
+		elif "mnist" in name.lower():
+			return KS_Model(model,name=name,mapping="emnist-mnist-mapping.txt")
+	
 		else :
 			return Model(model,name=name)
 	else:
@@ -99,13 +114,34 @@ def Predict():
 	message = "Predict from \n 1. Test Set \n 2. Image file \n"
 	userInput = int(input(message+">"))
 	if userInput == 1:
-		Predict_from_testSet()
+		if (_myData != None):
+			Predict_from_testSet()
+		else : 
+			print("please Load DataSet first")
 	elif userInput == 2:
 		Predict_from_imageFile()
 
+def Train():
+	global _myData
+	global _myModel
+	numClass = input("Enter Number of classes for multi classsifier ["+ str(len(_myData.mapping)) +"] >")
+	numClass = int(numClass) if numClass.isdigit() else len(_myData.mapping)
+	batch_size = input("Enter Batch Size for Training [86] > ")
+	batch_size = int(batch_size) if batch_size.isdigit() else 86
+	epochs = input("Enter No of Epoch for Training [30] > ")
+	epochs = int(epochs) if epochs.isdigit() else 30
+	try:
+		learningRate = float(input("Enter Learning for Training [0.001] > "))
+	except:
+		learningRate = 0.001
+
+	modelname,model = M_Util.TrainModel(_myData,numClass=numClass,batch_size=batch_size,epochs=epochs,learningRate=learningRate)
+	_myModel = KS_Model(model,mapping=_myData.mappingfile,name=modelname)
+	_myData = None
+
 def Predict_from_imageFile():
 	imageList = getImageList()
-	message = "Chose a Image \n"
+	message = "Choose a Image \n"
 	i = 1
 	for image in imageList:
 		message = message + str(i) +". "+ image +"\n"

@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 from PIL import Image
 
 class DatSet(IntEnum):
-    BY_MERGE = 0
-    BY_CLASS = 1
+    BYMERGE = 0
+    BYCLASS = 1
     BALANCED = 2
     DIGITS = 3
     LETTERS = 4
@@ -25,8 +25,9 @@ _DataSetList = [["emnist-bymerge-train.csv","emnist-bymerge-test.csv","emnist-by
 
 class Data:
     def __init__(self,dataSet):
-        self.dataSetName = dataSet.name
         global _DataSetList
+        self.mappingfile = _DataSetList[dataSet][2]
+        self.dataSetName = dataSet.name
         print("Loading Training Set ...")
         self.train_y,self.train_x = LoadData(_DataSetList[dataSet][0])
         print("Loading Test Set ...")

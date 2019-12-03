@@ -17,7 +17,7 @@ def getImageList():
     ImageFilesList = []
     Allfiles = listdir(IMAGE_DIR)
     for afile in Allfiles:
-        if ".png" in afile:
+        if ".png" in afile or ".PNG" in afile:
             ImageFilesList.append(afile)
     return ImageFilesList
 
@@ -64,8 +64,9 @@ def process_Image(imageName):
         if region.area >= 100:
             # draw rectangle around segmented coins
             minr, minc, maxr, maxc = region.bbox
-
+              
             chars = region.image
+            chars = util.img_as_ubyte(chars)
             pMin = min(chars.shape)
             # pMax = max(chars.shape)
             if pMin < 28 :
@@ -84,17 +85,24 @@ def process_Image(imageName):
             
             rect = mpatches.Rectangle((minc, minr), maxc - minc, maxr - minr,
                                     fill=False, edgecolor='red', linewidth=2)
-            ax.add_patch(rect)            
+            ax.add_patch(rect)
+                     
             chars = transform.resize(chars,(28,28),mode='constant')
+            chars = np.copy(chars)
+            chars[chars > 0] = 255
+            chars[chars <= 0] = 0
+
+            # chars = util.img_as_ubyte(chars)
 
             # chars = util.invert(chars)
-            print(np.ptp(chars,axis=1))
-            chars = util.img_as_ubyte(chars)
+            # print(np.ptp(chars,axis=1))
+            
             boxes.append(chars)
 
     ax.set_axis_off()
     plt.tight_layout()
     plt.show()
+    print(boxes[1])
     return boxes
 
 
