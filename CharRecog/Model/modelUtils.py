@@ -3,6 +3,7 @@ from os import path,listdir
 import os, fnmatch
 import json
 import time
+import matplotlib.pyplot as plt 
 
 from keras.models import model_from_json
 from keras.models import Sequential
@@ -114,7 +115,7 @@ def TrainModel(myData,numClass,batch_size=86,epochs=30,learningRate=0.001):
 
     datagen.fit(myData.train_x)
     # Set a learning rate annealer
-    learning_rate_reduction = ReduceLROnPlateau(monitor='val_acc', 
+    learning_rate_reduction = ReduceLROnPlateau(monitor='val_accuracy', 
                                             patience=3, 
                                             verbose=1, 
                                             factor=0.5, 
@@ -127,10 +128,21 @@ def TrainModel(myData,numClass,batch_size=86,epochs=30,learningRate=0.001):
     print("Done .........!")
     name = "model_CNN_"+str(myData.dataSetName)+str(time.time())
     SaveKarasModel(model,name)
+    plot_history(history)
 
     return name,model
 
-    
+def plot_history(history):
+    hist = pd.DataFrame(history.history)
+    hist['epoch'] = history.epoch
+    plt.figure()
+    plt.xlabel('Epoch')
+    plt.ylabel('Mean Square Error [Thousand Dollars$^2$]')
+    plt.plot(hist['epoch'], hist['mean_squared_error'], label='Train Error')
+    plt.plot(hist['epoch'], hist['val_mean_squared_error'], label = 'Val Error')
+    plt.legend()
+    plt.ylim([0,50])
+    plt.show()   
 
 def GetCNNmodel(learningRate,numClass):
     # Set the CNN model 

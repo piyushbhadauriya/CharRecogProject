@@ -8,7 +8,7 @@ from Image.imageutils import getImageList, process_Image
 from math import sqrt,ceil
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from PIL import Image
+# from PIL import Image
 
 _myData = None 
 _myModel = None
@@ -131,13 +131,17 @@ def Train():
 	epochs = input("Enter No of Epoch for Training [30] > ")
 	epochs = int(epochs) if epochs.isdigit() else 30
 	try:
-		learningRate = float(input("Enter Learning for Training [0.001] > "))
+		learningRate = float(input("Enter Learning rate for Training [0.001] > "))
 	except:
 		learningRate = 0.001
-
-	modelname,model = M_Util.TrainModel(_myData,numClass=numClass,batch_size=batch_size,epochs=epochs,learningRate=learningRate)
-	_myModel = KS_Model(model,mapping=_myData.mappingfile,name=modelname)
-	_myData = None
+	msg = "Number of classes = "+str(numClass)+", Batch Size = "+str(batch_size)+", Epoch = "+str(epochs)+", Learning rate = "+str(learningRate)+"\n"
+	confirm = input(msg+"Enter [Y] to continue >")
+	if confirm.lower() == 'y':
+		modelname,model = M_Util.TrainModel(_myData,numClass=numClass,batch_size=batch_size,epochs=epochs,learningRate=learningRate)
+		_myModel = KS_Model(model,mapping=_myData.mappingfile,name=modelname)
+		_myData = None
+	else :
+		print("Aborted")
 
 def Predict_from_imageFile():
 	imageList = getImageList()
@@ -247,15 +251,20 @@ def drawImages(charList,predOut):
 	for i in range(len(charList)):
 		n = ceil(sqrt(len(charList)))
 		plt.subplot(n,n,i+1)
+		# plt.xticks([])
+		# plt.yticks([])
 		img = charList[i]
 		if i < len(predOut): 
-			title_obj  = plt.title("Out:"+str(predOut[i]))
+			plt.title("Out:"+str(predOut[i]))
+			# plt.xlabel(str(predOut[i]))
 		plt.imshow(img.reshape([28, 28]), cmap = mpl.cm.binary)
 		plt.axis('off')
 	plt.subplots_adjust(hspace=0.6)
-	plt.savefig('Data/img.png')
-	image = Image.open('Data/img.png')
-	image.show()
+	plt.tight_layout()
+	plt.show()
+	# plt.savefig('Data/img.png')
+	# image = Image.open('Data/img.png')
+	# image.show()
 
 if __name__ == '__main__':
 	main()

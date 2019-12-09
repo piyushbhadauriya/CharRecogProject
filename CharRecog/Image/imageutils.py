@@ -102,98 +102,98 @@ def process_Image(imageName):
     ax.set_axis_off()
     plt.tight_layout()
     plt.show()
-    print(boxes[1])
+    # print(boxes[1])
     return boxes
 
 
-if __name__ == "__main__":
-    images = []
-    images.append(io.imread(os.path.join(IMAGE_DIR,'img-1.png'),as_gray=True))
-    # images.append(io.imread(os.path.join(IMAGE_DIR,imageName),as_gray=True))
-    # images.append(io.imread(os.path.join(IMAGE_DIR,'img-2.png')))
-    for image in images:
-        newimages=[image]
-        print("image size:",image.shape)
+# if __name__ == "__main__":
+#     images = []
+#     images.append(io.imread(os.path.join(IMAGE_DIR,'img-1.png'),as_gray=True))
+#     # images.append(io.imread(os.path.join(IMAGE_DIR,imageName),as_gray=True))
+#     # images.append(io.imread(os.path.join(IMAGE_DIR,'img-2.png')))
+#     for image in images:
+#         newimages=[image]
+#         print("image size:",image.shape)
         
-        # RGB image to grayscale 
-        if len(image.shape) == 3:
-            if image.shape[2] == 4:
-                image = color.rgba2rgb(image)
-            image = color.rgb2gray(image)
-            print("image size:",image.shape)
-        # else :
-            # print("image format not supported")
+#         # RGB image to grayscale 
+#         if len(image.shape) == 3:
+#             if image.shape[2] == 4:
+#                 image = color.rgba2rgb(image)
+#             image = color.rgb2gray(image)
+#             print("image size:",image.shape)
+#         # else :
+#             # print("image format not supported")
             
 
-        # erosion highlights darker areas in image 
-        tmp = morphology.erosion(image)
-        newimages.append(tmp)
-        # tmp = morphology.opening(image)
-        # newimages.append(tmp)
+#         # erosion highlights darker areas in image 
+#         tmp = morphology.erosion(image)
+#         newimages.append(tmp)
+#         # tmp = morphology.opening(image)
+#         # newimages.append(tmp)
 
-        tmp = util.invert(tmp)
-        # np.sum(array,axis=1).tolist()
-        newimages.append(tmp)
-        # # histogram
-        # hist, hist_centers = exposure.histogram(tmp)
-        # print(hist[0])
-        # print(type(hist))
-        # print(hist.shape)
-        # plt.plot(hist_centers[1:], hist[1:], lw=2)
-        # plt.show()
+#         tmp = util.invert(tmp)
+#         # np.sum(array,axis=1).tolist()
+#         newimages.append(tmp)
+#         # # histogram
+#         # hist, hist_centers = exposure.histogram(tmp)
+#         # print(hist[0])
+#         # print(type(hist))
+#         # print(hist.shape)
+#         # plt.plot(hist_centers[1:], hist[1:], lw=2)
+#         # plt.show()
 
-        # # apply threshold
-        thresh = filters.threshold_otsu(tmp)
-        bw = tmp > thresh
-        # plt.imshow(bw)
-        # remove artifacts connected to image border
-        # cleared = clear_border(bw)
+#         # # apply threshold
+#         thresh = filters.threshold_otsu(tmp)
+#         bw = tmp > thresh
+#         # plt.imshow(bw)
+#         # remove artifacts connected to image border
+#         # cleared = clear_border(bw)
 
-        # label image regions
-        label_image = label(bw)
-        image_label_overlay = color.label2rgb(label_image, image=image)
+#         # label image regions
+#         label_image = label(bw)
+#         image_label_overlay = color.label2rgb(label_image, image=image)
 
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.imshow(image_label_overlay,cmap='gray')
-        boxes = []
-        for region in regionprops(label_image):
-            # take regions with large enough areas
-            if region.area >= 100:
-                # i = i+1
-                # draw rectangle around segmented coins
-                minr, minc, maxr, maxc = region.bbox
-                rect = mpatches.Rectangle((minc, minr), maxc - minc, maxr - minr,
-                                        fill=False, edgecolor='red', linewidth=2)
-                # boxes.append(region.image)
-                print("image size:",region.image.shape)
-                # n = max(region.image.shape)
+#         fig, ax = plt.subplots(figsize=(10, 6))
+#         ax.imshow(image_label_overlay,cmap='gray')
+#         boxes = []
+#         for region in regionprops(label_image):
+#             # take regions with large enough areas
+#             if region.area >= 100:
+#                 # i = i+1
+#                 # draw rectangle around segmented coins
+#                 minr, minc, maxr, maxc = region.bbox
+#                 rect = mpatches.Rectangle((minc, minr), maxc - minc, maxr - minr,
+#                                         fill=False, edgecolor='red', linewidth=2)
+#                 # boxes.append(region.image)
+#                 print("image size:",region.image.shape)
+#                 # n = max(region.image.shape)
 
-                chars = transform.resize(region.image,(28,28),mode='constant')
-                ax.add_patch(rect)
-                chars = util.img_as_ubyte(chars)
-                boxes.append(chars)
-                # images.append(tmp[minr:maxr,minc:maxc])
-        # print(i)
-        ax.set_axis_off()
-        plt.tight_layout()
-        plt.show()
-        # newimages.append(thresh)
-        # markers = np.zeros(tmp.shape, dtype=np.uint)
-        # markers[tmp < -0.95] = 1
-        # markers[tmp > 0.95] = 2
-        # # newimages.append(markers)
-        # # newimages.append(segmentation.random_walker(tmp, markers, beta=10, mode='bf'))
-        print(boxes[0])
-        plot(boxes[:6])
+#                 chars = transform.resize(region.image,(28,28),mode='constant')
+#                 ax.add_patch(rect)
+#                 chars = util.img_as_ubyte(chars)
+#                 boxes.append(chars)
+#                 # images.append(tmp[minr:maxr,minc:maxc])
+#         # print(i)
+#         ax.set_axis_off()
+#         plt.tight_layout()
+#         plt.show()
+#         # newimages.append(thresh)
+#         # markers = np.zeros(tmp.shape, dtype=np.uint)
+#         # markers[tmp < -0.95] = 1
+#         # markers[tmp > 0.95] = 2
+#         # # newimages.append(markers)
+#         # # newimages.append(segmentation.random_walker(tmp, markers, beta=10, mode='bf'))
+#         print(boxes[0])
+#         plot(boxes[:6])
 
-    # def resize(image):
+#     # def resize(image):
 
-    #     print("image size:",image.shape)
-    #     w = image.shape[0]
-    #     h = image.shape[1]
-    #     n = max(image.shape)
-    #     print("Max:",n)
+#     #     print("image size:",image.shape)
+#     #     w = image.shape[0]
+#     #     h = image.shape[1]
+#     #     n = max(image.shape)
+#     #     print("Max:",n)
         
-    #     if w == n:
+#     #     if w == n:
 
-    #     image.
+#     #     image.
